@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Roles {
+  SUPERADMIN
+  ADMIN
+  USER
+}
+
+model UserInfo {
+  id               Int          @id @default(autoincrement())
+  email            String       @unique
+  firstName        String
+  lastName         String
+  assignedDivision String
+  assignedPosition String
+  assignedSection  String
+  dateStarted      DateTime
+  jobStatus        String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  account          UserAccounts @relation(fields: [accountId], references: [id])
+  accountId        Int          @unique
+}
+
+model UserAccounts {
+  id           Int            @id @default(autoincrement())
+  username        String         @unique
+  password     String
+  role         Roles
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  userInfo     UserInfo?
+  documentInfo DocumentInfo[]
+  recieved     DocumentHistory[]
+  
+}
+
+model DocumentInfo {
+  id              Int               @id @default(autoincrement())
+  documentType    String
+  subject         String
+  specification   String
+  attachment      String
+  dueDate         DateTime
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  account         UserAccounts      @relation(fields: [createdBy], references: [id])
+  createdBy       Int               @unique
+  documentHistory DocumentHistory[]
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  fileName  String
+  fileUrl   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  attachment DocumentHistory @relation(fields: [historyId], references: [id])
+  historyId Int
+}
+
+model DocumentHistory {
+  id             Int          @id @default(autoincrement())
+  forwarededFrom String
+  forwardedTo    String
+  remarks        String
+  history DocumentInfo @relation(fields: [documentId], references: [id])
+  documentId Int
+  recieve    UserAccounts @relation(fields: [recievedBy], references: [id])
+  recievedBy Int @unique
+  attachments Attachment[]
+}
+
