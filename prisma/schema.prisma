@@ -20,7 +20,7 @@ enum Roles {
 }
 
 model UserInfo {
-  id               Int          @id @default(autoincrement())
+  id           String            @id @default(uuid())
   email            String       @unique
   firstName        String
   lastName         String
@@ -32,24 +32,23 @@ model UserInfo {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   account          UserAccounts @relation(fields: [accountId], references: [id])
-  accountId        Int          @unique
+  accountId        String          @unique
 }
 
 model UserAccounts {
-  id           Int            @id @default(autoincrement())
-  username        String         @unique
+  id           String               @id @default(uuid())
+  username     String            @unique
   password     String
   role         Roles
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   userInfo     UserInfo?
   documentInfo DocumentInfo[]
   recieved     DocumentHistory[]
-  
 }
 
 model DocumentInfo {
-  id              Int               @id @default(autoincrement())
+  id              String              @id @default(uuid())
   documentType    String
   subject         String
   specification   String
@@ -58,18 +57,18 @@ model DocumentInfo {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   account         UserAccounts      @relation(fields: [createdBy], references: [id])
-  createdBy       Int               @unique
+  createdBy       String               @unique
   documentHistory DocumentHistory[]
 }
 
 model Attachment {
-  id        Int      @id @default(autoincrement())
-  fileName  String
-  fileUrl   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String             @id @default(uuid())
+  fileName   String
+  fileUrl    String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
   attachment DocumentHistory @relation(fields: [historyId], references: [id])
-  historyId Int
+  historyId  Int
 }
 
 model DocumentHistory {
@@ -77,10 +76,9 @@ model DocumentHistory {
   forwarededFrom String
   forwardedTo    String
   remarks        String
-  history DocumentInfo @relation(fields: [documentId], references: [id])
-  documentId Int
-  recieve    UserAccounts @relation(fields: [recievedBy], references: [id])
-  recievedBy Int @unique
-  attachments Attachment[]
+  history        DocumentInfo @relation(fields: [documentId], references: [id])
+  documentId     String
+  recieve        UserAccounts @relation(fields: [recievedBy], references: [id])
+  recievedBy     String          @unique
+  attachments    Attachment[]
 }
-
