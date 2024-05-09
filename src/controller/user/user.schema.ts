@@ -41,7 +41,12 @@ export const userRegisterSchema = {
     imageFile:z.optional(z.instanceof(File),{
       required_error: "image required is required",
     })
+
   }),
 };
+export const userInfoWithProfile = userRegisterSchema.body.extend({
+  imageUrl: z.string(),
+});
+export type TUserInfoWithProfile = z.infer<typeof userInfoWithProfile>;
 
 export type RegisterBody = TypeOf<typeof userRegisterSchema.body>;

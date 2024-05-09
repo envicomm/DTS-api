@@ -3,53 +3,32 @@ import { RegisterBody } from "./user.schema";
 import { db } from "../../prisma";
 import { Roles } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
+import { uploadImageToS3, uploadToS3 } from "../../services/aws-config";
+import { insertUserInfo } from "./user.service";
 
 export const registerUser = async (
   req: Request<{}, {}, RegisterBody>,
   res: Response
 ) => {
-  const {
-    email,
-    firstName,
-    lastName,
-    assignedDivision,
-    assignedSection,
-    assignedPosition,
-    dateStarted,
-    jobStatus,
-    username,
-    password,
-    role,
-    contactNumber,
-  } = req.body;
-  const imageUrl="";
-  try {
-    await db.userInfo.create({
-      data: {
-        email,
-        firstName,
-        lastName,
-        assignedPosition,
-        assignedDivision,
-        assignedSection,
-        dateStarted,
-        jobStatus,
-        contactNumber,
-        imageUrl,
-        account: {
-          create: {
-            username,
-            password,
-            role: role as Roles,
-          },
-        },
-      },
+  const data = req.body;
+  const file = req.file;
+  if (!file) {
+    return res.status(StatusCodes.BAD_REQUEST).send("No image uploaded");
+  }
 
-    });
-    console.log("User created successfully");
+  try {
+    const imageUrl = await uploadImageToS3(file);
+
+    if (!imageUrl) {
+      return res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send("Error uploading image");
+    }
+    await insertUserInfo({ ...data, imageUrl });
+
     return res.status(StatusCodes.CREATED).send("User created successfully");
-    
   } catch (error) {
+    console.log(error);
     console.log(error)
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
