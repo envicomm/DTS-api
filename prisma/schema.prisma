@@ -20,23 +20,25 @@ enum Roles {
 }
 
 model UserInfo {
-  id           String            @id @default(uuid())
+  id               String       @id @default(uuid())
   email            String       @unique
   firstName        String
   lastName         String
   assignedDivision String
   assignedPosition String
   assignedSection  String
+  contactNumber    String   
+  imageUrl         String  
   dateStarted      DateTime
   jobStatus        String
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   account          UserAccounts @relation(fields: [accountId], references: [id])
-  accountId        String          @unique
+  accountId        String       @unique
 }
 
 model UserAccounts {
-  id           String               @id @default(uuid())
+  id           String            @id @default(uuid())
   username     String            @unique
   password     String
   role         Roles
@@ -44,25 +46,25 @@ model UserAccounts {
   updatedAt    DateTime          @updatedAt
   userInfo     UserInfo?
   documentInfo DocumentInfo[]
-  recieved     DocumentHistory[]
+  received     DocumentHistory[] @relation("ReceivedDocuments")
+  forwarded    DocumentHistory[] @relation("ForwardedDocuments")
 }
 
 model DocumentInfo {
-  id              String              @id @default(uuid())
+  id              String            @id @default(uuid())
   documentType    String
   subject         String
   specification   String
-  attachment      String
   dueDate         DateTime
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-  account         UserAccounts      @relation(fields: [createdBy], references: [id])
-  createdBy       String               @unique
+  account         UserAccounts      @relation(fields: [accountId], references: [id])
+  accountId       String           
   documentHistory DocumentHistory[]
 }
 
 model Attachment {
-  id         String             @id @default(uuid())
+  id         String          @id @default(uuid())
   fileName   String
   fileUrl    String
   createdAt  DateTime        @default(now())
@@ -73,12 +75,16 @@ model Attachment {
 
 model DocumentHistory {
   id             Int          @id @default(autoincrement())
-  forwarededFrom String
+  department     String
+  forwardedFrom  String
   forwardedTo    String
+  forwarder      UserAccounts @relation("ReceivedDocuments", fields: [forwardedBy], references: [id])
+  forwardedBy    String
   remarks        String
-  history        DocumentInfo @relation(fields: [documentId], references: [id])
-  documentId     String
-  recieve        UserAccounts @relation(fields: [recievedBy], references: [id])
-  recievedBy     String          @unique
+  parentRecord   DocumentInfo @relation(fields: [parentRecordId], references: [id])
+  parentRecordId String
+  recieve        UserAccounts? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
+  receivedBy     String?
   attachments    Attachment[]
 }
+ 

@@ -20,8 +20,9 @@ export const registerUser = async (
     username,
     password,
     role,
+    contactNumber,
   } = req.body;
-
+  const imageUrl="";
   try {
     await db.userInfo.create({
       data: {
@@ -33,6 +34,8 @@ export const registerUser = async (
         assignedSection,
         dateStarted,
         jobStatus,
+        contactNumber,
+        imageUrl,
         account: {
           create: {
             username,
@@ -41,8 +44,11 @@ export const registerUser = async (
           },
         },
       },
+
     });
+    console.log("User created successfully");
     return res.status(StatusCodes.CREATED).send("User created successfully");
+    
   } catch (error) {
     console.log(error)
     return res

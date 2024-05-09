@@ -1,8 +1,8 @@
 import { object, string, TypeOf } from "zod";
-
+import z from "zod";
 export const userRegisterSchema = {
   body: object({
-    email: string({
+    email: z.string({
       required_error: "email is required",
     }),
     firstName: string({
@@ -15,12 +15,12 @@ export const userRegisterSchema = {
       required_error: "assignedDivision is required",
     }),
     assignedPosition: string({
-        required_error: "assignedPosition is required",
-      }),
+      required_error: "assignedPosition is required",
+    }),
     assignedSection: string({
       required_error: "assignedSection is required",
     }),
-    dateStarted: string({
+    dateStarted: z.string({
       required_error: "date is required",
     }).datetime(),
     jobStatus: string({
@@ -33,8 +33,14 @@ export const userRegisterSchema = {
       required_error: "password is required",
     }),
     role: string({
-        required_error: "role is required",
-      }),
+      required_error: "role is required",
+    }),
+    contactNumber: string({
+      required_error: "contactNumber is required",
+    }),
+    imageFile:z.optional(z.instanceof(File),{
+      required_error: "image required is required",
+    })
   }),
 };
 

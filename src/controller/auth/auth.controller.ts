@@ -1,7 +1,8 @@
 import { StatusCodes } from "http-status-codes";
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import { LoginBody } from "./auth.schema";
 import { db } from "../../prisma";
+import { signJwt } from "./auth.utils";
 
 export const loginHander = async (
   req: Request<{}, {}, LoginBody>,
@@ -21,7 +22,26 @@ export const loginHander = async (
   if (user.password !== password) {
     return res.status(StatusCodes.UNAUTHORIZED).send("Invalid password");
   }
-  return res.status(StatusCodes.OK).send("Login successful");
+
+  const payload = {
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    updatedAt: user.updatedAt,
+    createdAt: user.createdAt,
+  };
+
+  const jwt = signJwt(payload);
+
+  res.cookie("accessToken", jwt, {
+    maxAge: 3.154e10, // 1 year
+    httpOnly: false,
+    domain:  "localhost",
+    path: "/",
+    sameSite: "strict",
+    secure: false,  
+  });
+  return res.status(StatusCodes.OK).send(jwt);
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {
