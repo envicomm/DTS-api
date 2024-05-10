@@ -22,7 +22,7 @@ export const userRegisterSchema = {
     }),
     dateStarted: z.string({
       required_error: "date is required",
-    }).datetime(),
+    }),
     jobStatus: string({
       required_error: "jobStatus is required",
     }),
@@ -41,12 +41,22 @@ export const userRegisterSchema = {
     imageFile:z.optional(z.instanceof(File),{
       required_error: "image required is required",
     })
-
+    
   }),
 };
 export const userInfoWithProfile = userRegisterSchema.body.extend({
   imageUrl: z.string(),
 });
-export type TUserInfoWithProfile = z.infer<typeof userInfoWithProfile>;
 
+export const userInfoWithSignedUrl = userRegisterSchema.body.extend({
+  imageUrl: z.string(),
+  dateStarted: z.date(),
+}).omit({
+  dateStarted : true,
+  username: true,
+  password:true,
+  role: true
+});
+export type TUserInfoWithProfile = z.infer<typeof userInfoWithProfile>;
+export type TUserInfoWithSignedUrl = z.infer<typeof userInfoWithSignedUrl>
 export type RegisterBody = TypeOf<typeof userRegisterSchema.body>;
