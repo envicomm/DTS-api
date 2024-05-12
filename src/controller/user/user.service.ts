@@ -1,6 +1,6 @@
 import { Roles } from "@prisma/client";
 import { db } from "../../prisma";
-import { TUserInfoWithProfile } from "./user.schema";
+import { TLoginBody, TUserInfoWithProfile } from "./user.schema";
 
 
 export const insertUserInfo = async (data: TUserInfoWithProfile) => {
@@ -14,9 +14,8 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
       assignedSection,
       dateStarted,
       jobStatus,
-      username,
       password,
-      role,
+      accountType,
       contactNumber,
       imageUrl,
     } = data;
@@ -35,14 +34,14 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
         imageUrl,
         account: {
           create: {
-            username,
+            email,
             password,
-            role: role as Roles,
+            accountType: accountType as Roles,
           },
         },
       },
     });
-  
+
   } catch (error) {
     console.log(error)
     throw new Error("Something went wrong while creating user - service!")

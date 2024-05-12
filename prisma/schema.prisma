@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
 }
 
 enum Roles {
@@ -20,8 +20,8 @@ enum Roles {
 }
 
 model UserInfo {
-  id               String       @id @default(uuid())
-  email            String       @unique
+  id               String @id @default (uuid())
+  email            String @unique
   firstName        String
   lastName         String
   assignedDivision String
@@ -31,50 +31,50 @@ model UserInfo {
   imageUrl         String  
   dateStarted      DateTime
   jobStatus        String
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  createdAt        DateTime @default (now())
+  updatedAt        DateTime @updatedAt
   account          UserAccounts @relation(fields: [accountId], references: [id])
-  accountId        String       @unique
+  accountId        String @unique
 }
 
 model UserAccounts {
-  id           String            @id @default(uuid())
-  username     String            @unique
+  id           String @id @default (uuid())
+  email        String @unique
   password     String
-  role         Roles
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  userInfo     UserInfo?
+  createdAt    DateTime @default (now())
+  updatedAt    DateTime @updatedAt
+  accountType  Roles @default(USER)
+  userInfo     UserInfo ?
   documentInfo DocumentInfo[]
   received     DocumentHistory[] @relation("ReceivedDocuments")
   forwarded    DocumentHistory[] @relation("ForwardedDocuments")
 }
 
 model DocumentInfo {
-  id              String            @id @default(uuid())
+  id              String @id @default (uuid())
   documentType    String
   subject         String
   specification   String
   dueDate         DateTime
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  account         UserAccounts      @relation(fields: [accountId], references: [id])
+  createdAt       DateTime @default (now())
+  updatedAt       DateTime @updatedAt
+  account         UserAccounts @relation(fields: [accountId], references: [id])
   accountId       String           
   documentHistory DocumentHistory[]
 }
 
 model Attachment {
-  id         String          @id @default(uuid())
+  id         String @id @default (uuid())
   fileName   String
   fileUrl    String
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
+  createdAt  DateTime @default (now())
+  updatedAt  DateTime @updatedAt
   attachment DocumentHistory @relation(fields: [historyId], references: [id])
   historyId  Int
 }
 
 model DocumentHistory {
-  id             Int          @id @default(autoincrement())
+  id             Int @id @default (autoincrement())
   department     String
   forwardedFrom  String
   forwardedTo    String
@@ -83,8 +83,7 @@ model DocumentHistory {
   remarks        String
   parentRecord   DocumentInfo @relation(fields: [parentRecordId], references: [id])
   parentRecordId String
-  recieve        UserAccounts? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
-  receivedBy     String?
-  attachments    Attachment[]
+  recieve        UserAccounts ? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
+  receivedBy     String ?
+    attachments    Attachment[]
 }
- 

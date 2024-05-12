@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import { RegisterBody, TUserInfoWithProfile, TUserInfoWithSignedUrl } from "./user.schema";
+import { RegisterBody, TLoginBody, TUserInfoWithProfile, TUserInfoWithSignedUrl } from "./user.schema";
 import { db } from "../../prisma";
 import { Roles } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { getSignedUrlFromS3, uploadImageToS3, uploadToS3 } from "../../services/aws-config";
-import { insertUserInfo } from "./user.service";
-
+import {  insertUserInfo } from "./user.service";
+import jwt from "jsonwebtoken";
 export const registerUser = async (
   req: Request<{}, {}, RegisterBody>,
   res: Response
@@ -26,26 +26,26 @@ export const registerUser = async (
     }
     await insertUserInfo({ ...data, imageUrl });
 
-    return res.status(StatusCodes.CREATED).send("User created successfully");
+    res.status(StatusCodes.CREATED).send("User created successfully");
   } catch (error) {
     console.log(error);
     console.log(error);
-    return res
+    res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
-      .send("Error creating user");
+      .send("Something went wrong while creating user");
   }
 };
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-   
+
     const users = await db.userInfo.findMany();
 
     const usersWithSignedUrls: TUserInfoWithSignedUrl[] = await Promise.all(users.map(async (user) => {
       const signedUrl = await getSignedUrlFromS3(user.imageUrl);
-      return {...user, signedUrl};
+      return { ...user, signedUrl };
     }));
-   
+
     return res.status(StatusCodes.OK).send(usersWithSignedUrls);
   } catch (error) {
     throw new Error("Something went wrong while fetching users - controller!");

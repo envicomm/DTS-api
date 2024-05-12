@@ -3,45 +3,38 @@ import { Request, Response } from "express";
 import { LoginBody } from "./auth.schema";
 import { db } from "../../prisma";
 import { signJwt } from "./auth.utils";
-
+import { checkUserExists } from "./auth.service";
+import jwt from "jsonwebtoken";
 export const loginHander = async (
   req: Request<{}, {}, LoginBody>,
   res: Response
 ) => {
-  const { username, password } = req.body;
+ 
+  const { ...rest } = req.body
 
-  const user = await db.userAccounts.findFirst({
-    where: {
-      username,
-    },
-  });
-  if (!user) {
-    return res.status(StatusCodes.NOT_FOUND).send("User not found");
+  try {
+
+    const user = await checkUserExists(rest.email);
+    if (!user) {
+      return res.status(StatusCodes.UNAUTHORIZED).send("User not found");
+    }
+    if(user.password !== rest.password){
+      return res.status(StatusCodes.UNAUTHORIZED).send("Incorrect password");
+    }
+
+    const accessToken = jwt.sign({ email: user.email }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "1d" });
+    const refreshToken = jwt.sign({ email: user.email }, process.env.REFRESH_TOKEN_SECRET!, { expiresIn: "7d" });
+
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, maxAge: 300000, secure: true, sameSite: 'strict' });
+    res.cookie("accessToken", accessToken, { httpOnly: true, maxAge: 300000, secure: true, sameSite: 'strict' });
+
+    res.status(StatusCodes.OK).send("User logged in successfully");
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .send("Something went wrong while logging in");
   }
-
-  if (user.password !== password) {
-    return res.status(StatusCodes.UNAUTHORIZED).send("Invalid password");
-  }
-
-  const payload = {
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    updatedAt: user.updatedAt,
-    createdAt: user.createdAt,
-  };
-
-  const jwt = signJwt(payload);
-
-  res.cookie("accessToken", jwt, {
-    maxAge: 3.154e10, // 1 year
-    httpOnly: false,
-    domain:  "localhost",
-    path: "/",
-    sameSite: "strict",
-    secure: false,  
-  });
-  return res.status(StatusCodes.OK).send(jwt);
 };
 
 export const logoutHandler = async (req: Request, res: Response) => {

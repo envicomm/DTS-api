@@ -2,7 +2,7 @@ import { object, string, TypeOf } from "zod";
 import z from "zod";
 export const userRegisterSchema = {
   body: object({
-    email: z.string({
+    email: string({
       required_error: "email is required",
     }),
     firstName: string({
@@ -26,24 +26,29 @@ export const userRegisterSchema = {
     jobStatus: string({
       required_error: "jobStatus is required",
     }),
-    username: string({
-      required_error: "username is required",
-    }),
     password: string({
       required_error: "password is required",
     }),
-    role: string({
+    accountType: string({
       required_error: "role is required",
     }),
     contactNumber: string({
       required_error: "contactNumber is required",
     }),
-    imageFile:z.optional(z.instanceof(File),{
-      required_error: "image required is required",
-    })
     
   }),
 };
+
+export const userLoginSchema = {
+  body: object({
+    email: string({
+      required_error: "email is required",
+    }),
+    password: string({
+      required_error: "password is required",
+    }),
+  }),
+}
 export const userInfoWithProfile = userRegisterSchema.body.extend({
   imageUrl: z.string(),
 });
@@ -53,10 +58,10 @@ export const userInfoWithSignedUrl = userRegisterSchema.body.extend({
   dateStarted: z.date(),
 }).omit({
   dateStarted : true,
-  username: true,
   password:true,
-  role: true
+  accountType: true
 });
 export type TUserInfoWithProfile = z.infer<typeof userInfoWithProfile>;
 export type TUserInfoWithSignedUrl = z.infer<typeof userInfoWithSignedUrl>
 export type RegisterBody = TypeOf<typeof userRegisterSchema.body>;
+export type TLoginBody = TypeOf<typeof userLoginSchema.body>;
