@@ -1,10 +1,23 @@
 import { Request, Response } from "express";
-import { RegisterBody, TLoginBody, TUserInfoWithProfile, TUserInfoWithSignedUrl } from "./user.schema";
+import {
+  RegisterBody,
+  TLoginBody,
+  TUserInfoWithProfile,
+  TUserInfoWithSignedUrl,
+} from "./user.schema";
 import { db } from "../../prisma";
 import { Roles } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
-import { getSignedUrlFromS3, uploadImageToS3, uploadToS3 } from "../../services/aws-config";
-import {  insertUserInfo } from "./user.service";
+import {
+  getSignedUrlFromS3,
+  uploadImageToS3,
+  uploadToS3,
+} from "../../services/aws-config";
+import {
+  checkUserIdExists,
+  insertUpdatedUserInfo,
+  insertUserInfo,
+} from "./user.service";
 import jwt from "jsonwebtoken";
 export const registerUser = async (
   req: Request<{}, {}, RegisterBody>,
@@ -38,16 +51,38 @@ export const registerUser = async (
 
 export const getUser = async (req: Request, res: Response) => {
   try {
-
     const users = await db.userInfo.findMany();
 
-    const usersWithSignedUrls: TUserInfoWithSignedUrl[] = await Promise.all(users.map(async (user) => {
-      const signedUrl = await getSignedUrlFromS3(user.imageUrl);
-      return { ...user, signedUrl };
-    }));
+    const usersWithSignedUrls: TUserInfoWithSignedUrl[] = await Promise.all(
+      users.map(async (user) => {
+        const signedUrl = await getSignedUrlFromS3(user.imageUrl);
+        return { ...user, signedUrl };
+      })
+    );
 
     return res.status(StatusCodes.OK).send(usersWithSignedUrls);
   } catch (error) {
     throw new Error("Something went wrong while fetching users - controller!");
+  }
+};
+export const updateUser = async (
+  req: Request<{ id: string }, {}, RegisterBody>,
+  res: Response
+) => {
+  const id = req.params.id;
+
+  const data = req.body;
+
+  const dataWithId = { ...data, id };
+  try {
+    const checkifExist = await checkUserIdExists(dataWithId.id);
+    if (!checkifExist) {
+      return res.status(StatusCodes.NOT_FOUND).send("User not found");
+    }
+    await insertUpdatedUserInfo(dataWithId);
+
+    res.status(StatusCodes.OK).send("User updated successfully");
+  } catch (error) {
+    throw new Error("Something went wrong while updating user - controller!");
   }
 };

@@ -1,89 +1,83 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
+}
+
+model UserInfo {
+  id               String       @id @default(uuid())
+  email            String       @unique
+  firstName        String
+  lastName         String
+  assignedDivision String
+  assignedPosition String
+  assignedSection  String
+  dateStarted      DateTime
+  jobStatus        String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  accountId        String       @unique
+  contactNumber    String
+  imageUrl         String
+  account          UserAccounts @relation(fields: [accountId], references: [id])
+}
+
+model UserAccounts {
+  id           String            @id @default(uuid())
+  password     String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  accountType  Roles             @default(USER)
+  email        String            @unique
+  received     DocumentHistory[] @relation("ReceivedDocuments")
+  forwarded    DocumentHistory[] @relation("ForwardedDocuments")
+  documentInfo DocumentInfo[]
+  userInfo     UserInfo?
+}
+
+model DocumentInfo {
+  id              String            @id @default(uuid())
+  documentType    String
+  subject         String
+  specification   String
+  dueDate         DateTime
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  accountId       String
+  documentHistory DocumentHistory[]
+  account         UserAccounts      @relation(fields: [accountId], references: [id])
+}
+
+model Attachment {
+  id         String          @id @default(uuid())
+  fileName   String
+  fileUrl    String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  historyId  Int
+  attachment DocumentHistory @relation(fields: [historyId], references: [id])
+}
+
+model DocumentHistory {
+  id             Int           @id @default(autoincrement())
+  forwardedTo    String
+  remarks        String
+  forwardedFrom  String
+  receivedBy     String?
+  department     String
+  forwardedBy    String
+  parentRecordId String
+  attachments    Attachment[]
+  forwarder      UserAccounts  @relation("ReceivedDocuments", fields: [forwardedBy], references: [id])
+  parentRecord   DocumentInfo  @relation(fields: [parentRecordId], references: [id])
+  recieve        UserAccounts? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
 }
 
 enum Roles {
   SUPERADMIN
   ADMIN
   USER
-}
-
-model UserInfo {
-  id               String @id @default (uuid())
-  email            String @unique
-  firstName        String
-  lastName         String
-  assignedDivision String
-  assignedPosition String
-  assignedSection  String
-  contactNumber    String   
-  imageUrl         String  
-  dateStarted      DateTime
-  jobStatus        String
-  createdAt        DateTime @default (now())
-  updatedAt        DateTime @updatedAt
-  account          UserAccounts @relation(fields: [accountId], references: [id])
-  accountId        String @unique
-}
-
-model UserAccounts {
-  id           String @id @default (uuid())
-  email        String @unique
-  password     String
-  createdAt    DateTime @default (now())
-  updatedAt    DateTime @updatedAt
-  accountType  Roles @default(USER)
-  userInfo     UserInfo ?
-  documentInfo DocumentInfo[]
-  received     DocumentHistory[] @relation("ReceivedDocuments")
-  forwarded    DocumentHistory[] @relation("ForwardedDocuments")
-}
-
-model DocumentInfo {
-  id              String @id @default (uuid())
-  documentType    String
-  subject         String
-  specification   String
-  dueDate         DateTime
-  createdAt       DateTime @default (now())
-  updatedAt       DateTime @updatedAt
-  account         UserAccounts @relation(fields: [accountId], references: [id])
-  accountId       String           
-  documentHistory DocumentHistory[]
-}
-
-model Attachment {
-  id         String @id @default (uuid())
-  fileName   String
-  fileUrl    String
-  createdAt  DateTime @default (now())
-  updatedAt  DateTime @updatedAt
-  attachment DocumentHistory @relation(fields: [historyId], references: [id])
-  historyId  Int
-}
-
-model DocumentHistory {
-  id             Int @id @default (autoincrement())
-  department     String
-  forwardedFrom  String
-  forwardedTo    String
-  forwarder      UserAccounts @relation("ReceivedDocuments", fields: [forwardedBy], references: [id])
-  forwardedBy    String
-  remarks        String
-  parentRecord   DocumentInfo @relation(fields: [parentRecordId], references: [id])
-  parentRecordId String
-  recieve        UserAccounts ? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
-  receivedBy     String ?
-    attachments    Attachment[]
 }
