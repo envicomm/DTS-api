@@ -12,8 +12,7 @@ import {
 import { Sha256 } from "@aws-crypto/sha256-browser";
 import { Hash } from "@smithy/hash-node";
 const config = {
-  region: "us-east-1",
-  endpoint: process.env.BUCKET_ENDPOINT,
+  region: "ap-southeast-2",
   credentials: {
     accessKeyId: process.env.BUCKET_ACCESS_KEY!,
     secretAccessKey: process.env.BUCKET_PRIVATE_KEY!,

@@ -6,6 +6,9 @@ export const userInfoSchema = {
     email: string({
       required_error: "email is required",
     }),
+    userId : string({
+      required_error : ("userId is required")
+    }),
     firstName: string({
       required_error: "firstName is required",
     }).min(2, "firstName must be at least 6 characters"),
@@ -46,7 +49,7 @@ export const userRegisterSchema = userInfoSchema.body.extend({
   password: string({
     required_error: "password is required",
   }),
-  accountType: string({
+  accountRole: string({
     required_error: "accountType is required",
   }),
 });
@@ -80,7 +83,7 @@ export const userInfoWithSignedUrl = userRegisterSchema
   .omit({
     dateStarted: true,
     password: true,
-    accountType: true,
+    accountRole: true,
   });
 
 export type TUserWithId = z.infer<typeof userWithIdSchema>;

@@ -48,7 +48,7 @@ export const loginHander = async (
     const payload = {
       email: user.email,
       name: user.userInfo?.firstName,
-      accountType: user.accountType,
+      accountRole: user.accountRole,
       accountId: user.id,
       userId: user.userInfo?.id,
       assignedDevision: user.userInfo?.assignedDivision,

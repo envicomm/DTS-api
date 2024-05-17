@@ -15,7 +15,6 @@ export const transactionHandler = async (
 ) => {
   const {
     documentType,
-    specification,
     subject,
     forwardedTo,
     forwardedFrom,
@@ -23,7 +22,10 @@ export const transactionHandler = async (
     accountId,
     dueDate,
     forwardedBy,
-    department,
+    toDepartment,
+    fromDepartment,
+    dateForwarded,
+    documentSection
   } = req.body;
   const files = req.files;
 
@@ -44,17 +46,20 @@ export const transactionHandler = async (
     const insertTransaction = await db.documentInfo.create({
       data: {
         documentType,
-        specification,
         subject,
         dueDate,
         accountId,
+        documentSection,
         documentHistory: {
           create: {
             forwardedTo,
             forwardedFrom,
             remarks,
+            subject,
+            dateForwarded,
             forwardedBy,
-            department,
+            toDepartment,
+            fromDepartment,
             attachments: {
               createMany: {
                 data: attachments,

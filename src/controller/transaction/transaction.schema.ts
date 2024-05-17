@@ -2,7 +2,6 @@
 
  export const transactionDetailsSchema = z.object({
      documentType: z.string(),
-     specification: z.string(),
      subject:z.string(),
      company: z.string(),
      forwardedTo: z.string(),
@@ -11,7 +10,10 @@
      accountId: z.string(),
      dueDate: z.string().transform(value => new Date(value)),
      forwardedBy: z.string(),
-     department: z.string(),
+     toDepartment: z.string(),
+     fromDepartment:z.string(),
+     dateForwarded : z.date(),
+     documentSection :z.string()
    });
 export const attachmentSchema = z.object({
   fileName: z.string(),

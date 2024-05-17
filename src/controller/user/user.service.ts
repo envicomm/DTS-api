@@ -15,7 +15,7 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
       dateStarted,
       jobStatus,
       password,
-      accountType,
+      accountRole,
       contactNumber,
       imageUrl,
     } = data;
@@ -36,7 +36,7 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
           create: {
             email,
             password,
-            accountType: accountType as Roles,
+            accountRole: accountRole as Roles,
           },
         },
       },

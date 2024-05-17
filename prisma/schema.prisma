@@ -12,6 +12,7 @@ model UserInfo {
   email            String       @unique
   firstName        String
   lastName         String
+  userId           String       @unique @default(cuid())
   assignedDivision String
   assignedPosition String
   assignedSection  String
@@ -30,7 +31,7 @@ model UserAccounts {
   password     String
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
-  accountType  Roles             @default(USER)
+  accountRole  Roles             @default(USER)
   email        String            @unique
   received     DocumentHistory[] @relation("ReceivedDocuments")
   forwarded    DocumentHistory[] @relation("ForwardedDocuments")
@@ -39,22 +40,25 @@ model UserAccounts {
 }
 
 model DocumentInfo {
-  id              String            @id @default(uuid())
-  documentType    String
-  subject         String
-  specification   String
+  id           String @id @default(uuid())
+  documentType String
+  subject      String
+
   dueDate         DateTime
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   accountId       String
+  documentSection String
   documentHistory DocumentHistory[]
   account         UserAccounts      @relation(fields: [accountId], references: [id])
 }
 
 model Attachment {
-  id         String          @id @default(uuid())
-  fileName   String
-  fileUrl    String
+  id       String  @id @default(uuid())
+  fileName String
+  fileUrl  String
+  remarks  String?
+
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
   historyId  Int
@@ -62,22 +66,31 @@ model Attachment {
 }
 
 model DocumentHistory {
-  id             Int           @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   forwardedTo    String
   remarks        String
   forwardedFrom  String
   receivedBy     String?
-  department     String
+  fromDepartment String
+  toDepartment   String
   forwardedBy    String
   parentRecordId String
-  attachments    Attachment[]
-  forwarder      UserAccounts  @relation("ReceivedDocuments", fields: [forwardedBy], references: [id])
-  parentRecord   DocumentInfo  @relation(fields: [parentRecordId], references: [id])
-  recieve        UserAccounts? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
+  subject        String
+  dateReceived   DateTime?
+  dateForwarded  DateTime
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  attachments  Attachment[]
+  forwarder    UserAccounts  @relation("ReceivedDocuments", fields: [forwardedBy], references: [id])
+  parentRecord DocumentInfo  @relation(fields: [parentRecordId], references: [id])
+  recieve      UserAccounts? @relation("ForwardedDocuments", fields: [receivedBy], references: [id])
 }
 
 enum Roles {
   SUPERADMIN
   ADMIN
+  TL
+  CH
   USER
 }

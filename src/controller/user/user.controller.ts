@@ -86,3 +86,12 @@ export const updateUser = async (
     throw new Error("Something went wrong while updating user - controller!");
   }
 };
+
+export const userAccounts = async (req: Request, res: Response) => {
+  try {
+    const users = await db.userAccounts.findMany();
+    return res.status(StatusCodes.OK).send(users);
+  } catch (error) {
+    throw new Error("Something went wrong while fetching user accounts!");
+  }
+}
