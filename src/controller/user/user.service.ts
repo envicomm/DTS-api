@@ -18,10 +18,14 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
       accountRole,
       contactNumber,
       imageUrl,
+      birthDate,
+      middleName,
+      employeeId
     } = data;
 
     await db.userInfo.create({
       data: {
+        employeeId,
         email,
         firstName,
         lastName,
@@ -32,6 +36,8 @@ export const insertUserInfo = async (data: TUserInfoWithProfile) => {
         jobStatus,
         contactNumber,
         imageUrl,
+        birthDate,
+        middleName,
         account: {
           create: {
             email,

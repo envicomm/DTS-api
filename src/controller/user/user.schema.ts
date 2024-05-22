@@ -6,7 +6,7 @@ export const userInfoSchema = {
     email: string({
       required_error: "email is required",
     }),
-    userId : string({
+    employeeId : string({
       required_error : ("userId is required")
     }),
     firstName: string({
@@ -33,6 +33,12 @@ export const userInfoSchema = {
     contactNumber: string({
       required_error: "contactNumber is required",
     }),
+    birthDate: z.string({
+      required_error: "birthDate is required",
+    }),
+    middleName: z.nullable(z.string({
+      required_error: "middleName is required",
+    }))
   }),
 };
 export const accountSchema = {

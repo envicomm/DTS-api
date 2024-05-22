@@ -3,13 +3,11 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
-import z from "zod";
 import { generateFileName } from "../utils/utils";
 import {
   S3RequestPresigner,
   getSignedUrl,
 } from "@aws-sdk/s3-request-presigner";
-import { Sha256 } from "@aws-crypto/sha256-browser";
 import { Hash } from "@smithy/hash-node";
 const config = {
   region: "ap-southeast-2",
@@ -65,8 +63,9 @@ export const uploadToS3 = async (file: Express.Multer.File) => {
         },
       })
     );
-    return { fileUrl: key, fileName: file.originalname };
+    return { fileUrl: key,  fileOriginalName: file.originalname };
   } catch (error) {
+    console.log(error);
     throw new Error("Error uploading file to S3");
   }
 };

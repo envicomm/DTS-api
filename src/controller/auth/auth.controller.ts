@@ -51,7 +51,7 @@ export const loginHander = async (
       accountRole: user.accountRole,
       accountId: user.id,
       userId: user.userInfo?.id,
-      assignedDevision: user.userInfo?.assignedDivision,
+      assignedDivision: user.userInfo?.assignedDivision,
       assignedSection: user.userInfo?.assignedPosition,
       assignedPosition: user.userInfo?.assignedPosition,
     };
